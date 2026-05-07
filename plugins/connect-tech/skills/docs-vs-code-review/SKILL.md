@@ -1,17 +1,9 @@
 ---
 name: docs-vs-code-review
 description: >
-  Reviews Confluence documentation against actual source code AND internal documentation standards
-  to find inaccuracies and gaps, then suggests specific fixes.
-  Use this skill whenever a user shares a Confluence page URL and asks to "review the docs",
-  "audit documentation", "compare docs to code", "check if the docs are accurate",
-  "update docs to match the code", or "what's wrong with this documentation".
-  Also trigger when a user says things like "the docs might be out of date", "sync the docs with
-  the code", or "check our docs against the guidelines". The skill fetches the Confluence page and
-  ALL child pages, clones and reads relevant code, and produces a concise prioritized list of
-  specific doc changes needed — only things that need fixing, no confirmation of what's already
-  correct. Always use this skill when the user provides a Confluence URL — a GitHub repo URL is
-  NOT required, the skill infers the correct repos automatically.
+  Reviews Confluence docs against source code to find inaccuracies and suggest fixes. Use when
+  the user provides a Confluence URL and asks to review, audit, or check if docs are accurate
+  or up to date (GitHub repo not required — inferred from the Confluence space).
 ---
 
 # Docs vs. Code Review
