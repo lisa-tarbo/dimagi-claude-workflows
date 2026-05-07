@@ -45,6 +45,7 @@ Utility commands for general development tasks.
 **Skills**
 
 - `iterate-pr`: Fix CI failures and address review feedback on the current branch's PR in a single pass. Gathers feedback (LOGAF-categorized), fixes high/medium issues, prompts on low-priority items, checks CI, verifies locally, commits, pushes, and replies to all threads. Supports `--dry-run`.
+- `add-mobile-string`: Add a new Android string resource (with translations across all supported locales) to the CommCare Android project, given a resource name and English text. 
 
 - `create-mobile-pr`: For mobile PRs in the dimagi/commcare-android repository, open a draft GitHub pull request with a JIRA-prefixed title and a template-generated description, appending QA notes to the active release section of RELEASES.md in a separate commit, and assign the current user without requesting reviewers.
 
