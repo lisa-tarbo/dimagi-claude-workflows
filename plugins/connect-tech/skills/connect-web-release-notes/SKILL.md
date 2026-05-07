@@ -1,15 +1,9 @@
 ---
 name: connect-web-release-notes
 description: >
-  Generates Markdown release notes for the most recent release of the dimagi/commcare-connect
-  GitHub repository. No input needed — the skill automatically finds the latest release,
-  collects all PRs merged since the previous release, and produces a clean Markdown file
-  grouped into three sections: New, Improvements, and Bug Fixes.
-
-  Use this skill whenever the user asks to generate, write, or create release notes for
-  Connect, asks what changed in the last release, wants a changelog, or says something like
-  "summarize the changes since the last release". Also trigger when the user mentions
-  a new Connect release was created on GitHub.
+  Generates Markdown release notes for the latest commcare-connect release and posts them
+  to Confluence and Slack. Use when the user asks for Connect release notes, a changelog,
+  or what changed in the last release (no repo URL needed).
 ---
 
 # Connect Release Notes

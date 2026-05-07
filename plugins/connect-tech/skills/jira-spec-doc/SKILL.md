@@ -1,17 +1,9 @@
 ---
 name: jira-spec-doc
 description: >
-  Generates a full product spec doc in Markdown from a Jira ticket ID or URL.
-  Use this skill whenever the user shares a Jira ticket ID (like CCC-284) or a
-  Jira URL (like https://dimagi.atlassian.net/browse/CCC-284) and asks for a
-  spec doc, design doc, tech spec, or product specification to be created or
-  drafted from it. Also trigger when the user says things like "write a spec for
-  this ticket", "generate a spec from this Jira", "turn this ticket into a spec",
-  or "make a spec doc for [ticket ID]". The skill fetches the ticket's title,
-  description, and metadata from Jira, then produces a structured Markdown file
-  with both a Design Doc section and a Tech Spec section following the Connect
-  Spec Doc template format. Always use this skill when a Jira ticket is the
-  primary input and a spec doc is the desired output.
+  Generates a product spec doc in Markdown from a Jira ticket. Use when the user
+  provides a Jira ticket ID (e.g. CCC-284) or URL and asks for a spec, design doc,
+  or tech spec ("write a spec for this ticket", "make a spec from this Jira").
 ---
 
 # Jira Spec Doc Generator

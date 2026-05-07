@@ -2,15 +2,8 @@
 name: release-notes
 description: >
   Generates Markdown release notes for the most recent release of a GitHub repository.
-  Given a GitHub repo URL (or owner/repo), this skill finds the latest two releases, collects
-  all PRs merged between them, categorizes each change as New / Improvement / Fix / Infra / Docs,
-  and produces a clean, grouped Markdown file saved to the outputs folder.
-
-  Use this skill whenever the user asks to "generate release notes", "write a changelog",
-  "summarize what changed in the last release", "what was in the last release", or similar.
-  Also trigger when the user provides a GitHub repo URL or owner/repo string alongside any
-  mention of releases, PRs, or changelogs. The skill works for any public or private GitHub
-  repo accessible via the user's `gh` CLI session.
+  Use when the user asks to "generate release notes", "write a changelog", or "summarize
+  the last release" for a GitHub repo (owner/repo or full URL).
 ---
 
 # Release Notes Skill
