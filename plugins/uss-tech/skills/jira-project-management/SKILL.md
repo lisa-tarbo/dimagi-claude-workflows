@@ -38,7 +38,6 @@ Read the appropriate reference file based on user intent:
 | List children of an epic | tickets-and-epics.md |
 | View sprint tickets (current or upcoming) | tickets-and-epics.md |
 | Transition a ticket's status | tickets-and-epics.md |
-| Create, fetch, or edit a design doc | design-docs.md |
 
 ## Parsing Ticket References
 
