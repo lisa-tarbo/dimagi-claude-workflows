@@ -1,6 +1,6 @@
 ---
 name: create-mobile-pr
-description: Use when creating a PR in a Dimagi mobile/CommCare repo — repos with JIRA-prefixed branches (e.g. CCCT-1929-..., CI-609-..., ENG-42-...), a `RELEASES.md` with `### Release Notes` and `### QA Notes` sections, and the dimagi PR template (Safety story / Product Description / Technical Summary / QA Plan). Opens a draft PR with a JIRA-prefixed title, fills out the template, assigns `@me`, and appends release notes and QA notes to the current release in `RELEASES.md` rather than the PR body. Triggers on "create/open/make/submit a PR", "ship this", or when implementation is complete and the branch is ready to push. For repos without these conventions, use the generic `create-pr` skill instead.
+description: Use when creating, opening, or submitting a pull request in a Dimagi mobile/CommCare repo — identified by JIRA-prefixed branches (e.g. CCCT-1929-...), a `RELEASES.md` with `### Release Notes` and `### QA Notes` sections, and the dimagi PR template (Safety story / Product Description / Technical Summary / QA Plan). Also triggers on "ship this" or when implementation is complete and ready to push. For repos without these conventions, use the generic `create-pr` skill instead.
 ---
 
 # Create GitHub Pull Request
@@ -175,7 +175,54 @@ Key flags:
 
 Do **not** pass `--reviewer`. Reviewer selection is the user's responsibility once they take the PR out of draft.
 
-After creation, output the PR URL so the user can see it.
+Capture the PR URL printed by `gh pr create` — it is needed in step 8.
+
+### 8. Post a Suggested Review Order Comment
+
+After the PR is created, post a comment on it with a **Suggested Review Order**: a short bulleted list of the changed files in the order a reviewer should read them, each with a one-line rationale. This helps reviewers build a mental model of the change instead of clicking through files in GitHub's default order.
+
+**Skip this step** when the PR has fewer than 2 non-generated files changed — there is no order to suggest.
+
+**Decide the order** using these heuristics, in priority order:
+
+- Read deleted or replaced code before its replacement
+- Schema / data model / migration changes first
+- New types, interfaces, or constants before their consumers
+- Core logic / domain layer next
+- Integration / API / controller layer after the logic it wraps
+- UI / view layer after the data it renders
+- Tests near the code they cover (or first, if the tests document intent more clearly than the implementation)
+- Config, infra, manifest, build, and cosmetic changes last
+- Skip generated files (lock files, compiled output, vendored deps)
+
+If the commits already tell a clean story, recommend reading commit-by-commit instead of file-by-file, and note that in the comment.
+
+**Comment format:**
+
+```markdown
+## Suggested Review Order
+
+- `path/to/file-1.kt` — short reason this comes first
+- `path/to/file-2.kt` — short reason this comes next
+- `path/to/file-3.kt` — short reason
+- ...
+```
+
+Keep each rationale to a short clause (roughly under 15 words). Do not restate the PR description. Do not list generated files. Use backticks around file paths.
+
+**Post the comment** with `gh pr comment`, using the PR URL captured in step 7:
+
+```bash
+gh pr comment <PR-URL> --body "$(cat <<'EOF'
+## Suggested Review Order
+
+- `path/to/file-1.kt` — short reason this comes first
+- ...
+EOF
+)"
+```
+
+After the comment is posted, output the PR URL so the user can open it.
 
 ## Common Mistakes
 
@@ -199,3 +246,6 @@ After creation, output the PR URL so the user can see it.
 - Inventing testing the user did not actually do — ask them explicitly if it is unclear
 - Writing the Safety story in the third person ("the author did X", "the user tested Y") — the PR is authored by the user, so descriptions of what they did must use "I"
 - Padding PR description sections instead of keeping them concise
+- Forgetting to post the Suggested Review Order comment after creating the PR
+- Including generated files (lock files, compiled output, vendored deps) in the Suggested Review Order
+- Listing files in the Suggested Review Order without any rationale, or with rationale longer than a short clause
