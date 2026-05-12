@@ -91,7 +91,16 @@ Do **not** write steps that require:
 
 QA notes should read as user-level actions and observable outcomes: "do X in the app, expect Y to happen." If a regression cannot be observed without developer tools, say so and rely on automated coverage instead of writing an unrunnable QA step.
 
-After updating `RELEASES.md`, stage and commit the change on the current branch with a short message such as `Add QA notes for TICKET-NUMBER`. Use a separate commit so it is easy to review.
+**Show the user a draft of the QA notes before committing.**
+
+After editing `RELEASES.md`, present the proposed QA notes back to the user for review *before* staging or committing anything. Show:
+
+- The release section the notes will be added under (e.g. `## CommCare 2.56`)
+- The exact bullet(s) you are about to append, verbatim
+
+Then ask the user whether to proceed, adjust the wording, or add/remove bullets. Wait for their response. Do **not** run `git add` or `git commit` for the `RELEASES.md` change until the user has approved the draft.
+
+Once the user approves, stage and commit the change on the current branch with a short message such as `Add QA notes for TICKET-NUMBER`. Use a separate commit so it is easy to review.
 
 ### 5. Generate PR Description from the Template
 
@@ -191,6 +200,7 @@ After creation, output the PR URL so the user can see it.
 - Including the Labels and Review section from the PR template -- it must be omitted
 - Forgetting `--assignee "@me"`
 - Writing QA notes that require developer tooling (Android Studio, Logcat, adb, unit tests, internal storage inspection, etc.) -- QA only has a phone build
+- Committing the `RELEASES.md` change without first showing the user a draft of the QA notes and waiting for their approval
 - Writing the Safety story as advocacy for the PR -- it must list both confidence factors and unresolved risks neutrally
 - Inventing testing the user did not actually do -- ask them explicitly if it is unclear
 - Writing the Safety story in the third person ("the author did X", "the user tested Y") -- the PR is authored by the user, so descriptions of what they did must use "I"
