@@ -67,12 +67,14 @@ Spawn **all 6 agents simultaneously** (in parallel, not sequentially). Each agen
 | `${CLAUDE_PLUGIN_ROOT}/../code-review/agents/maintainability-reviewer.md` | `maintainability.json` | Testability, error handling, dead code, documentation |
 | `${CLAUDE_PLUGIN_ROOT}/agents/uss-reviewer.md` | `uss.json` | USS Tech audience inventory, gate correctness, blast radius |
 
+**Before spawning agents**, resolve `${CLAUDE_PLUGIN_ROOT}` to its absolute path (it is available in your environment) and substitute it into the agent paths and prompts below. Subagents do not have access to this variable.
+
 **Prompt to give each agent** (replace bracketed values with absolute paths and concrete values before sending):
 
 ```
 Read your reviewer instructions from [/absolute/path/to/agent-file.md].
 
-Also consult [/absolute/path/to/code-review/skills/code-review/references/language-notes.md]
+Also consult ${CLAUDE_PLUGIN_ROOT}/../code-review/skills/code-review/references/language-notes.md
 for the relevant [language/framework] section — it contains idiomatic patterns,
 common pitfalls, and framework conventions to check.
 
