@@ -89,6 +89,8 @@ Focus only on your assigned dimension. Be thorough within your domain.
 
 The USS reviewer does **not** need to consult `language-notes.md` — its focus is platform-impact, not language idioms. Omit that line from its prompt.
 
+**Additional context for the USS reviewer:** if the review target is a PR or a commit range, append a `Provenance` section to the USS reviewer's prompt (and only the USS reviewer's) with the PR title, PR description, and commit messages in the range. The USS reviewer's Step 5 uses this to judge whether user-facing changes look clearly intentional. Gather this via `gh pr view <N> --repo <owner/repo> --json title,body` and `git log <base>..<head> --format='%h %s%n%b'`, or equivalent. If the review target is pasted code or a single file with no provenance, omit the section — the USS reviewer falls back to diff-only intentionality signals.
+
 ---
 
 ## Step 3: Wait and collect results

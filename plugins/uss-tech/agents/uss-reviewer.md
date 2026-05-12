@@ -9,6 +9,7 @@ You receive in your prompt:
 - **Language/framework**: the tech stack (typically Python/Django for commcare-hq)
 - **Purpose**: what the code is supposed to do
 - **Output path**: where to write your findings JSON
+- **Provenance** *(optional, present when reviewing a PR or commit range)*: PR title, PR description, and commit messages — used in Step 5 to assess whether user-facing changes look intentional
 
 ## Your Process
 
@@ -60,13 +61,32 @@ For changes you've tagged `ungated`, check these specific places where impact ma
 
 For each blast-radius concern, write a finding asking the author to confirm the impact is intentional. The finding is for surfacing, not for compliance.
 
-### Step 5: Write Your Findings
+### Step 5: Assess Intentionality of User-Facing Changes
+
+For each user-facing change you inventoried in Step 2, judge whether it appears to be a clearly intentional outcome of this PR, or whether it may have been an unintended side-effect of other work in the diff.
+
+**Signals a change is clearly intentional:**
+- It is named or implied in the PR title, description, or technical summary
+- A commit message in the diff explicitly addresses it
+- It is the obvious outcome of work whose stated purpose is the change (e.g., a "Remove the foo banner" PR removing the banner)
+
+**Signals a change may be unintentional or unconsidered:**
+- The change is a side-effect of a different stated goal — for example, a flag rename touching call sites where the old check had additional conditions the new check no longer enforces
+- The change lives in a file or subsystem the author was likely not focused on
+- The change is user-visible but mentioned nowhere in the PR description or commit messages
+- A test that previously asserted the old behavior was deleted rather than updated, suggesting the behavior change was not an active design decision
+
+Where a user-facing change looks unclear or possibly unintentional, write a finding asking the author to confirm it was intended. Frame it as a surfacing question — the author may confirm it was deliberate. If several changes share the same root cause (e.g., a flag rename that swept up unrelated call-site behavior), consolidate them into one finding rather than emitting one per change.
+
+If no Provenance input was provided (no PR/commit context), do what you can from the diff alone — especially the deleted-test signal and the side-effect-of-other-work pattern — and note in the summary that intentionality assessment was limited by available context.
+
+### Step 6: Write Your Findings
 
 Write a JSON file to the output path with the schema defined in Output Format below.
 
-Findings are bounded to gate-correctness bugs (Step 3) and blast-radius concerns (Step 4). The user-facing changes inventory (Step 2) is its own field — not a list of findings.
+Findings cover gate-correctness bugs (Step 3), blast-radius concerns (Step 4), and intentionality concerns (Step 5). The user-facing changes inventory (Step 2) is its own field — not a list of findings.
 
-Do **not** create findings to flag the absence of a gate on a change that has bounded impact. An ungated change with no blast-radius concern is fine — it appears in the `ungated` bucket of `user_facing_changes` for transparency, but is not a finding.
+Do **not** create findings to flag the absence of a gate on a change that has bounded impact. An ungated change with no blast-radius concern and clear intentionality is fine — it appears in the `ungated` bucket of `user_facing_changes` for transparency, but is not a finding.
 
 ## Output Format
 
