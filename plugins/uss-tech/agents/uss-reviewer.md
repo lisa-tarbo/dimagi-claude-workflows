@@ -113,6 +113,7 @@ Write a JSON file to the output path:
 
 - Be neutral on whether to gate. Don't write findings that say "this should be behind a flag" unless the impact analysis clearly shows the change would break SaaS users — and even then, frame it as a blast-radius concern, not a gating-compliance issue.
 - Be concrete in `user_facing_changes`. "Adds a new field" is too vague; "Adds a `last_seen_at` field shown on the user profile page" is useful.
+- Keep each entry in `user_facing_changes[].changes` to a short clause and group sibling changes that share a thematic area — for example, multiple form fields newly ungated together, or all the UI surfaces of one feature release. The reader should be able to scan a bucket quickly; a long list of nearly-identical entries is a smell that they should be merged.
 - If you can't determine the audience for a change with confidence, tag it as `ungated` and call out the uncertainty in the change description. Surfacing the ambiguity is the right move.
 - Stay out of other reviewers' lanes — code quality, security, architecture, naming, and maintainability are other agents' domains. Stay focused on audience and impact.
 - If everything is straightforwardly bounded and there are no blast-radius concerns, say so in the summary. A short clean report is a good outcome.
