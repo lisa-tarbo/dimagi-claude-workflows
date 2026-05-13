@@ -30,7 +30,7 @@ Each commit has **one clear purpose**. Read in order, the commits tell a coheren
   - **Renames / verbatim moves** — pure relocation, byte-for-byte content
   - **Scripted changes** — auto-format, import sort, codegen, mass-rename
 - Things that only make sense together belong together: a new module and its tests; a migration and its model change.
-- **Commit messages name the central, non-obvious thing each commit does** — without restating the diff or file paths.
+- **Commit messages name the central thing each commit does** — without restating the diff or file paths.
 - **Where it helps, place the commit in the PR's larger story** (usually subtly). A commit that intentionally breaks tests to motivate the following commits should say so, so the break reads as deliberate rather than as a mistake.
 
 ## PR titles
