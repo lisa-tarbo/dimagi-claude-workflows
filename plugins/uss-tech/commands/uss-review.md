@@ -12,17 +12,13 @@ This command depends on the `code-review` plugin being installed (it reuses code
 
 ## Step 0: Preflight — verify code-review is installed
 
-Resolve `${CLAUDE_PLUGIN_ROOT}` to its absolute path. The 5 code-review agent files are expected at:
+Resolve `${CLAUDE_PLUGIN_ROOT}` to its absolute path. The existing code-review agent files are expected to be inside:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/../code-review/agents/design-reviewer.md
-${CLAUDE_PLUGIN_ROOT}/../code-review/agents/quality-reviewer.md
-${CLAUDE_PLUGIN_ROOT}/../code-review/agents/smells-reviewer.md
-${CLAUDE_PLUGIN_ROOT}/../code-review/agents/security-reviewer.md
-${CLAUDE_PLUGIN_ROOT}/../code-review/agents/maintainability-reviewer.md
+${CLAUDE_PLUGIN_ROOT}/../code-review/agents/
 ```
 
-Verify each file exists. If any are missing, print:
+Verify that this directory has review agent files.  If not, print:
 
 > The `/uss-review` command depends on the `code-review` plugin, which does not appear to be installed. Install it via `/plugins` (add the `dimagi-claude-workflows` marketplace if needed) and retry.
 
