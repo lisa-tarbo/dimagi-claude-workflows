@@ -1,13 +1,13 @@
 ---
 name: create-mobile-pr
-description: Use when creating a PR in a Dimagi mobile/CommCare repo — repos with JIRA-prefixed branches (e.g. CCCT-1929-..., CI-609-..., ENG-42-...), a `RELEASES.md` with a `### QA Notes` section, and the dimagi PR template (Safety story / Product Description / Technical Summary / QA Plan). Opens a draft PR with a JIRA-prefixed title, fills out the template, assigns `@me`, and appends QA notes to the current release in `RELEASES.md` rather than the PR body. Triggers on "create/open/make/submit a PR", "ship this", or when implementation is complete and the branch is ready to push. For repos without these conventions, use the generic `create-pr` skill instead.
+description: Use when creating, opening, or submitting a pull request in a Dimagi mobile/CommCare repo — identified by JIRA-prefixed branches (e.g. CCCT-1929-...), a `RELEASES.md` with `### Release Notes` and `### QA Notes` sections, and the dimagi PR template (Safety story / Product Description / Technical Summary / QA Plan). Also triggers on "ship this" or when implementation is complete and ready to push. For repos without these conventions, use the generic `create-pr` skill instead.
 ---
 
 # Create GitHub Pull Request
 
 ## Overview
 
-Open a draft GitHub pull request with a JIRA-prefixed title, a description generated from the repo's PR template, and the current user as assignee. The PR is opened as a draft so the user can review on GitHub and mark it ready for review (and request reviewers) themselves. QA notes go into `RELEASES.md`, not the PR description.
+Open a draft GitHub pull request with a JIRA-prefixed title, a description generated from the repo's PR template, and the current user as assignee. The PR is opened as a draft so the user can review on GitHub and mark it ready for review (and request reviewers) themselves. Release notes and QA notes go into `RELEASES.md`, not the PR description.
 
 ## When to Use
 
@@ -27,7 +27,7 @@ Run these in parallel:
 - `git diff master...HEAD --stat` -- changed files summary
 - `git diff master...HEAD` -- full diff
 - `cat .github/PULL_REQUEST_TEMPLATE.md` -- the PR template
-- `cat RELEASES.md` -- the current release file (used to find the active release section for QA Notes)
+- `cat RELEASES.md` -- the current release file (used to find the active release section for Release Notes and QA Notes)
 
 Also check: did the user provide additional notes, context, or verification steps? Incorporate them into the appropriate sections.
 
@@ -64,74 +64,73 @@ If they have not, ask explicitly -- for example:
 
 Wait for their answer before proceeding. Do not invent or assume testing the user did not describe. If they say they did not test it locally, record that honestly in the Safety Story.
 
-### 4. Update RELEASES.md with QA Notes
+### 4. Update RELEASES.md (Release Notes and QA Notes)
 
-QA notes belong in `RELEASES.md`, not in the PR description.
+Release notes and QA notes belong in `RELEASES.md`, not in the PR description. Each is its own decision, its own draft-for-approval, and its own commit so the changes are easy to review.
 
-1. Open `RELEASES.md` and find the **most recent release section** (the topmost `## CommCare X.YZ` heading).
-2. Locate its `### QA Notes` subsection.
-3. Append one or more bullet points describing what QA should manually verify for this change.
+Open `RELEASES.md` and find the **most recent release section** (the topmost `## CommCare X.YZ` heading).
 
-**Write QA notes for testers with phone access only.**
+**Never include JIRA ticket numbers in `RELEASES.md` entries** — not in Release Notes, not in QA Notes. No `CCCT-1234`-style identifiers, no ticket links, no parenthetical ticket references in the bullet text. The ticket lives in the PR title and description.
 
-The QA team does **not** have access to developer tools. Assume their only tooling is:
+#### 4a. Release Notes (skip if not required)
+
+The `### Release Notes` subsection is published publicly (Play Store, GitHub Releases, CommCare Forums), plus an `#### Internal Release Notes` block for project-specific notes. Add an entry **only if** the change is observable by end users or relevant projects:
+
+- `#### What's New` — new user-visible features or capabilities
+- `#### Important Bug Fixes` — user-visible bug fixes worth surfacing
+- `#### Internal Release Notes` — changes relevant only to specific projects
+
+**Skip this step entirely** when the change has no user-visible impact — refactors, dev-tooling, internal-only logic, code cleanup, test-only changes. If unsure, ask the user whether a release note is needed.
+
+Write entries as short, user-facing descriptions of *what changed* from the user's perspective. No ticket numbers. No implementation detail.
+
+Show the user a draft of the release note bullet(s) — which subsection they'll go under and the exact bullet text, verbatim — and wait for their response. Do **not** run `git add` or `git commit` until the user has approved the draft. Once approved, stage and commit the change on the current branch with a short message such as `Add release notes for TICKET-NUMBER`. Use a separate commit so it is easy to review.
+
+#### 4b. QA Notes (skip if not required)
+
+Append bullets to `### QA Notes` describing what QA should manually verify.
+
+**Write QA notes for testers with phone access only.** Assume QA's only tooling is:
 
 - A build of the app installed on their phone
 - The app's normal UI and any user-facing surfaces (settings, forms, Connect, PersonalID, etc.)
 - Their own test accounts / test projects
 - Server-side admin views they would normally use (e.g. HQ), if relevant to the feature
 
-Do **not** write steps that require:
+Do **not** write steps that require Android Studio, Logcat, adb, unit/instrumentation tests, internal storage inspection, or any developer-only tooling. QA notes read as user-level actions and observable outcomes: "do X in the app, expect Y." If a regression cannot be observed without developer tools, say so and rely on automated coverage instead of writing an unrunnable QA step.
 
-- Android Studio, Logcat, adb, or any IDE
-- Reading source code, stack traces, or build artifacts
-- Running unit tests, instrumentation tests, or scripts
-- Inspecting databases, internal storage, or shared preferences directly
-- Any tooling a developer would use but a manual tester would not
+**Skip this step** when there is nothing for QA to manually verify (e.g. pure refactor with automated coverage, dev-tooling change). If unsure, ask the user.
 
-QA notes should read as user-level actions and observable outcomes: "do X in the app, expect Y to happen." If a regression cannot be observed without developer tools, say so and rely on automated coverage instead of writing an unrunnable QA step.
+No ticket numbers in QA bullets.
 
-After updating `RELEASES.md`, stage and commit the change on the current branch with a short message such as `Add QA notes for TICKET-NUMBER`. Use a separate commit so it is easy to review.
+Show the user a draft of the QA bullet(s) — the release section heading they'll go under (e.g. `## CommCare 2.56`) and the exact bullet text, verbatim — and wait for their response. Do **not** run `git add` or `git commit` until the user has approved the draft. Once approved, stage and commit the change on the current branch with a short message such as `Add QA notes for TICKET-NUMBER`. Use a separate commit so it is easy to review.
 
 ### 5. Generate PR Description from the Template
 
-Read `.github/PULL_REQUEST_TEMPLATE.md` and fill it out according to the instructions in the HTML comments of each section. Replace the HTML comments with actual content -- do not leave them in the final description.
+Read `.github/PULL_REQUEST_TEMPLATE.md` and fill out each section per the instructions in its HTML comments. Replace the HTML comments with content — do not leave them in the final description.
 
-**Prepend a ticket link heading at the very top of the description (before the first template section):**
+**Prepend a ticket link heading at the very top** (before the first template section):
 
 - Format: `### [TICKET-NUMBER](https://dimagi.atlassian.net/browse/TICKET-NUMBER)`
 - Example: `### [CCCT-2264](https://dimagi.atlassian.net/browse/CCCT-2264)`
 - Display text is just the ticket number
 
-For each template section, follow the guidance in its HTML comment, with these specific rules:
+**Be concise.** Every section should be the shortest version that still gives a reviewer what they need. No padding, no restating the diff in prose, no advocacy.
 
-#### Safety story -- be neutral, not advocacy
+#### Safety story — neutral, first-person, two short lists
 
-The Safety story is **not** a defense of the PR. Do not stack arguments in favor of merging. Write it as a balanced risk assessment that lets a reviewer judge the change on its merits.
+The Safety story is a balanced risk assessment, not a defense of the PR. Two short lists, items only if actually true:
 
-Structure the Safety story with two short lists:
+- **What gives confidence:** the user's personal testing (from step 3, in their words), narrow diff scope, existing automated coverage of the changed paths, flag-gating, etc.
+- **Risks to review:** data migrations, behavior changes for existing users, paths not covered by automated tests, areas the user did not exercise, third-party integrations, performance-sensitive paths, error-handling changes, limited author testing. If a risk is mitigated, say *how*; otherwise leave it for the reviewer to decide.
 
-- **What gives confidence:** concrete, factual reasons the change is likely safe -- e.g. the user's personal testing (from step 3, described in their own words), narrow scope of the diff, existing automated coverage that exercises the changed code paths, the change being behind a flag, etc. Only include items that are actually true; do not pad.
-- **Risks to review:** honest risks the reviewer should consider -- e.g. data migrations, behavior changes for existing users, code paths not covered by automated tests, areas the user did not manually exercise, third-party integrations affected, performance-sensitive paths, error-handling changes, etc. If the user did limited testing, that itself is a risk and should be listed.
-
-If a risk is genuinely mitigated, say *how* it is mitigated rather than dismissing it. If a risk is not mitigated, leave it in the list so the reviewer can decide whether to ask for more work.
-
-**Voice -- write the Safety story in the first person.**
-
-The PR is authored by the user, so any sentence describing what *they* did to verify the change must be written from their point of view. Use **"I"**, not "the author" or "the user" or "the developer".
-
-- Correct: "I manually exercised the happy path on a device."
-- Correct: "I did not run unit tests locally."
-- Wrong: "The author manually exercised the happy path on a device."
-- Wrong: "The user tested the failure path with airplane mode."
-
-This applies to both the **What gives confidence** and **Risks to review** lists, and to any other sentence in the PR description that refers to actions the PR author took. Statements about the *change itself* (e.g. "the change reuses the existing endpoint") stay in third person -- only switch to "I" when the subject is the PR author.
+**Voice:** write the Safety story in the **first person** when describing what the PR author did ("I manually exercised the happy path", not "the author" / "the user" / "the developer"). Statements about the change itself stay in third person.
 
 #### Other sections
 
-Fill out Product Description, Technical Summary, and Automated test coverage from the diff, commits, and any user-provided context. Incorporate the user's testing description (from step 3) into the Safety story's "What gives confidence" list rather than fabricating details.
+Fill Product Description, Technical Summary, and Automated test coverage from the diff, commits, and user-provided context. Keep each short and concrete. Incorporate the user's testing into the Safety story's confidence list rather than fabricating details elsewhere.
 
-**Omit the Labels and Review section from the PR description.** Do not include its heading or body in the generated description.
+**Omit the Labels and Review section from the PR description.** Do not include its heading or body.
 
 ### 6. Ensure Branch is Pushed
 
@@ -147,7 +146,7 @@ If no upstream exists, push the branch:
 git push -u origin HEAD
 ```
 
-If the branch is behind the remote, push the latest commits (this will include the RELEASES.md commit from step 4):
+If the branch is behind the remote, push the latest commits (this will include any RELEASES.md commits from step 4):
 
 ```bash
 git push
@@ -176,21 +175,77 @@ Key flags:
 
 Do **not** pass `--reviewer`. Reviewer selection is the user's responsibility once they take the PR out of draft.
 
-After creation, output the PR URL so the user can see it.
+Capture the PR URL printed by `gh pr create` — it is needed in step 8.
+
+### 8. Post a Suggested Review Order Comment
+
+After the PR is created, post a comment on it with a **Suggested Review Order**: a short bulleted list of the changed files in the order a reviewer should read them, each with a one-line rationale. This helps reviewers build a mental model of the change instead of clicking through files in GitHub's default order.
+
+**Skip this step** when the PR has fewer than 2 non-generated files changed — there is no order to suggest.
+
+**Decide the order** using these heuristics, in priority order:
+
+- Read deleted or replaced code before its replacement
+- Schema / data model / migration changes first
+- New types, interfaces, or constants before their consumers
+- Core logic / domain layer next
+- Integration / API / controller layer after the logic it wraps
+- UI / view layer after the data it renders
+- Tests near the code they cover (or first, if the tests document intent more clearly than the implementation)
+- Config, infra, manifest, build, and cosmetic changes last
+- Skip generated files (lock files, compiled output, vendored deps)
+
+If the commits already tell a clean story, recommend reading commit-by-commit instead of file-by-file, and note that in the comment.
+
+**Comment format:**
+
+```markdown
+## Suggested Review Order
+
+- `path/to/file-1.kt` — short reason this comes first
+- `path/to/file-2.kt` — short reason this comes next
+- `path/to/file-3.kt` — short reason
+- ...
+```
+
+Keep each rationale to a short clause (roughly under 15 words). Do not restate the PR description. Do not list generated files. Use backticks around file paths.
+
+**Post the comment** with `gh pr comment`, using the PR URL captured in step 7:
+
+```bash
+gh pr comment <PR-URL> --body "$(cat <<'EOF'
+## Suggested Review Order
+
+- `path/to/file-1.kt` — short reason this comes first
+- ...
+EOF
+)"
+```
+
+After the comment is posted, output the PR URL so the user can open it.
 
 ## Common Mistakes
 
 - Forgetting to extract the ticket number and using the raw branch slug as the title
-- Using sentence case in the title -- every word in the description portion must start with a capital letter
-- Making the title too long -- keep it under 72 characters total
+- Using sentence case in the title — every word in the description portion must start with a capital letter
+- Title over 72 characters
 - Opening the PR without `--draft`
-- Passing `--reviewer` -- reviewer requests are the user's job after they take the PR out of draft
+- Passing `--reviewer` — reviewer requests are the user's job after they take the PR out of draft
 - Not pushing the branch before attempting to create the PR
 - Leaving the template's HTML comment placeholders in the description instead of replacing them with content
 - Forgetting the ticket link heading at the very top of the description
-- Including the Labels and Review section from the PR template -- it must be omitted
+- Including the Labels and Review section from the PR template — it must be omitted
 - Forgetting `--assignee "@me"`
-- Writing QA notes that require developer tooling (Android Studio, Logcat, adb, unit tests, internal storage inspection, etc.) -- QA only has a phone build
-- Writing the Safety story as advocacy for the PR -- it must list both confidence factors and unresolved risks neutrally
-- Inventing testing the user did not actually do -- ask them explicitly if it is unclear
-- Writing the Safety story in the third person ("the author did X", "the user tested Y") -- the PR is authored by the user, so descriptions of what they did must use "I"
+- Including JIRA ticket numbers in `RELEASES.md` entries (release notes or QA notes) — tickets belong in the PR title and description, not in `RELEASES.md`
+- Adding a release note for a change with no user-visible impact (refactor, dev-tooling, test-only)
+- Adding QA notes for a change with nothing for a manual tester to verify
+- Writing QA notes that require developer tooling (Android Studio, Logcat, adb, unit tests, internal storage inspection, etc.) — QA only has a phone build
+- Bundling Release Notes and QA Notes into one commit, or bundling them with code changes — each `RELEASES.md` update is its own commit
+- Committing a `RELEASES.md` change without first showing the user a draft of the bullet(s) and waiting for their approval
+- Writing the Safety story as advocacy for the PR — it must list both confidence factors and unresolved risks neutrally
+- Inventing testing the user did not actually do — ask them explicitly if it is unclear
+- Writing the Safety story in the third person ("the author did X", "the user tested Y") — the PR is authored by the user, so descriptions of what they did must use "I"
+- Padding PR description sections instead of keeping them concise
+- Forgetting to post the Suggested Review Order comment after creating the PR
+- Including generated files (lock files, compiled output, vendored deps) in the Suggested Review Order
+- Listing files in the Suggested Review Order without any rationale, or with rationale longer than a short clause
