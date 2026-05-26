@@ -1,6 +1,6 @@
 ---
 name: git-rebase
-description: Use when squashing fixup commits into earlier commits, doing interactive rebase cleanup on a feature branch, recovering from a failed autosquash rebase, inserting a reformatting commit before existing code changes, or moving/splitting file changes between commits. Covers the standard fixup workflow, dropped-commit recovery, pitfalls of custom GIT_SEQUENCE_EDITOR scripts, the replay-and-reformat pattern, and the checkout-and-reconstruct pattern for rearranging commit contents.
+description: Use when squashing fixup commits into earlier commits, doing interactive rebase cleanup on a feature branch, recovering from a failed autosquash rebase, inserting a reformatting commit before existing code changes, or moving/splitting file changes between commits. Covers the standard fixup workflow, dropped-commit recovery, pitfalls of custom GIT_SEQUENCE_EDITOR scripts, the replay-and-reformat pattern, the checkout-and-reconstruct pattern for rearranging commit contents, splitting one working-tree change across multiple fixup targets, and diagnosing autosquash conflicts.
 ---
 
 # git-rebase
@@ -23,6 +23,23 @@ git reset --hard HEAD@{N}
 ```
 
 **Never rebase while parallel agents have staged changes.** Staged changes are shared working-tree state. If another agent commits while you're mid-rebase, the commits become entangled. Finish or abort all rebase operations before handing off to parallel agents.
+
+## Before You Start: Audit Per-File Targets
+
+**One fixup commit can squash into exactly one target commit.** If your working-tree change to a file needs to land in multiple historical commits, you need multiple fixup commits — each containing only the slice that belongs in its target.
+
+This is the single most common cause of mid-rebase conflicts. Catch it upfront:
+
+```bash
+# For each file you've modified, see which branch commits already touched it
+git status --short | awk '{print $2}' | while read f; do
+  echo "=== $f ==="
+  git log <base>..HEAD --oneline -- "$f"
+done
+```
+
+If a file appears in only one commit: a single fixup is fine.
+If a file appears in N commits: you'll need to split the diff across N fixups. See [Splitting One Working-Tree Change Across Multiple Fixup Targets](#splitting-one-working-tree-change-across-multiple-fixup-targets) below.
 
 ## Core Workflow
 
@@ -59,6 +76,8 @@ git show <new-sha> --stat      # confirm expected files are in the right commit
 ```
 
 "Rebase succeeded" ≠ "rebase did what I intended." Always inspect the commit.
+
+**On long branches with many fixups, prefer incremental autosquash.** Commit one fixup, autosquash, verify, then create the next. Batching seven fixups and running one autosquash means conflicts surface in arbitrary mid-rebase order with no cheap way to course-correct — if fixup #1 turns out to span two commits, you discover it three commits into the rebase instead of before starting.
 
 ## Dropped Fixup Recovery
 
@@ -216,6 +235,60 @@ git checkout <branch>
 git diff <branch>_backup..<branch> --stat   # should be empty
 ```
 
+## Splitting One Working-Tree Change Across Multiple Fixup Targets
+
+The "Moving File Changes Between Commits" section above assumes you already have separate commits to recombine. This section covers the more common case: you have **one uncommitted edit to a file** and need to slice it across **multiple historical commits**.
+
+Example: you've edited `output.py` to (a) add a `HASH_LENGTH` constant (belongs in the commit that introduced hashing), (b) harden the filename sanitiser (belongs in the sanitisation commit), and (c) replace the tmp-file write with `O_NOFOLLOW`/`O_EXCL` (belongs in the atomic-write commit).
+
+```bash
+# 1. Save the final state and reset the file to HEAD
+cp src/output.py /tmp/output.final
+git checkout HEAD -- src/output.py
+
+# 2. Apply ONLY the slice for target A (the hashing commit).
+#    Hand-edit src/output.py to introduce HASH_LENGTH and its usages.
+$EDITOR src/output.py
+git add src/output.py
+git commit -m "fixup! <subject of hashing commit>"
+
+# 3. Apply slice B (the sanitiser commit). Re-edit to add the
+#    control-char / bidi / NAME_MAX cap changes.
+$EDITOR src/output.py
+git add src/output.py
+git commit -m "fixup! <subject of sanitisation commit>"
+
+# 4. Apply slice C (the atomic-write commit). Re-edit to add
+#    O_NOFOLLOW / O_EXCL / unique tmp suffix.
+$EDITOR src/output.py
+git add src/output.py
+git commit -m "fixup! <subject of atomic-write commit>"
+
+# 5. Verify the cumulative result matches the saved final state
+diff /tmp/output.final src/output.py  # should be empty
+
+# 6. Autosquash
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
+```
+
+**Why this works:** each fixup contains only the diff that's valid against its target commit's state. When the rebase replays them, git applies each slice on top of a file that already has everything that came before — no overlapping edits, no conflicts.
+
+**Common pitfall:** committing the entire current file state under a fixup-A message just because A is the file's earliest commit. The fixup then carries content (symbols, imports, functions) that doesn't exist at A and will conflict, often noisily, when the rebase replays it.
+
+## Diagnosing Autosquash Conflicts
+
+When autosquash stops with a conflict, the conflict marker almost always reveals which mistake you made. Read the `>>>>>>>` block — the "theirs" side — and compare it against the file state at the current `pick`:
+
+| Conflict shape                                                                                                       | Diagnosis                                                                                                                                       | Fix                                                                                                                                            |
+|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| Your fixup adds a symbol (constant, function) that doesn't exist in the surrounding file yet                         | The fixup is targeting a commit earlier than the symbol's natural introduction                                                                  | Resolve by keeping HEAD; carve out the offending lines into a separate fixup against the later commit                                          |
+| Your fixup references an import (`os`, `Path`, etc.) the file doesn't have yet                                       | Same root cause — slice belongs in a later commit                                                                                               | Same fix                                                                                                                                       |
+| Your fixup *deletes or wholesale-replaces* a function that a later branch commit also modifies                       | The later commit will conflict against an empty/changed target when its turn comes                                                              | Accept HEAD when the later commit conflicts; it will shrink to whatever changes still apply, or empty out                                      |
+| Your fixup touches lines that another fixup against a later commit also touches                                      | Two fixups racing for the same lines                                                                                                            | Order matters — the later-targeted fixup should be a no-op against the already-modified lines, or its slice needs to be redrafted              |
+| Conflict markers appear in a file you didn't intend to touch                                                         | A merge-recursive 3-way pulled in collateral changes                                                                                            | Resolve to HEAD; verify with `git diff HEAD -- <file>` after, and run `git rebase --skip` only if the resulting commit is truly empty          |
+
+**General rule:** if you can't immediately explain *which target commit each conflicting line belongs to*, abort with `git rebase --abort`, re-audit per-file targets, and split the offending fixup.
+
 ## Common Mistakes
 
 | Mistake                                                          | Fix                                                                                                              |
@@ -227,3 +300,6 @@ git diff <branch>_backup..<branch> --stat   # should be empty
 | Assuming "rebase succeeded" means it did the right thing         | Verify with `git show`                                                                                           |
 | Cherry-picking code commits onto a reformatted base              | Use the replay-and-reformat pattern (see above) — cherry-pick produces dozens of unsolvable formatting conflicts |
 | Using interactive rebase (`-i`) to split/rearrange commits       | Claude Code can't use `-i`; use the checkout-and-reconstruct pattern instead                                     |
+| Lumping all of a file's edits into one fixup when the file appears in multiple branch commits | Audit per-file targets up front; split the diff into one fixup per target — see "Splitting One Working-Tree Change Across Multiple Fixup Targets" |
+| Batching many fixups before a single autosquash on a long branch | Commit one fixup, autosquash, verify, repeat — conflicts surface at the source instead of mid-rebase             |
+| Treating an autosquash conflict as a merge problem to resolve in place | The conflict is usually telling you a fixup spans the wrong number of target commits; abort, split, retry          |
