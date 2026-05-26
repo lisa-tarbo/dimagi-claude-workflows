@@ -142,11 +142,11 @@ The Safety story is a balanced risk assessment, not a defense of the PR. Two sho
 
 **Voice:** write the Safety story in the **first person** when describing what the PR author did ("I manually exercised the happy path", not "the author" / "the user" / "the developer"). Statements about the change itself stay in third person.
 
-#### Technical Summary — 1-3 sentences, high level only
+#### Technical Summary — short, high level only
 
 The Technical Summary is a **high-level orientation** for the reviewer, not a description of the diff. The reviewer can already see the diff.
 
-- **Hard cap: 1-3 sentences.** No bullet lists. No code blocks. No file-by-file walkthrough.
+- **Keep it short.** Aim for 1-3 sentences. A short bulleted list (roughly 2-4 tight bullets) is fine when it concisely groups distinct changes that would be harder to follow in prose — but bullets are not an excuse for length. No code blocks. No file-by-file walkthrough.
 - **Do not restate facts that are obvious from reading the code change.** If the only thing you can say is "renames `foo` to `bar` in three files," omit the section entirely (see "Omit sections" guidance above).
 - Focus on the **why** and the **shape** of the change: which subsystem is touched, what approach was chosen, and any non-obvious design decision a reviewer should know before reading the diff.
 - If the change is a small, self-explanatory fix or rename, prefer omitting the section over writing filler.
@@ -273,7 +273,7 @@ After the comment is posted, output the PR URL so the user can open it.
 - Inventing testing the user did not actually do — ask them explicitly if it is unclear
 - Writing the Safety story in the third person ("the author did X", "the user tested Y") — the PR is authored by the user, so descriptions of what they did must use "I"
 - Padding PR description sections instead of keeping them concise
-- Writing a Technical Summary longer than 1-3 sentences, or that restates facts already obvious from the diff (file-by-file walkthrough, renamed identifiers, etc.)
+- Writing a Technical Summary that runs long (more than a few sentences or a short bulleted list), or that restates facts already obvious from the diff (file-by-file walkthrough, renamed identifiers, etc.)
 - Keeping a section (Technical Summary, Product Description, Automated test coverage) when it would have no signal — drop the entire section, heading included, instead of filling it with boilerplate
 - Writing QA notes as step-by-step user instructions ("open the app, tap login, enter credentials, ...") instead of a short checklist of what to verify
 - Writing more QA bullets than necessary, or splitting one logical check across multiple bullets, or restating obvious happy-path behavior QA would test anyway
