@@ -239,7 +239,7 @@ git diff <branch>_backup..<branch> --stat   # should be empty
 
 The "Moving File Changes Between Commits" section above assumes you already have separate commits to recombine. This section covers the more common case: you have **one uncommitted edit to a file** and need to slice it across **multiple historical commits**.
 
-Example: you've edited `output.py` to (a) add a `HASH_LENGTH` constant (belongs in the commit that introduced hashing), (b) harden the filename sanitiser (belongs in the sanitisation commit), and (c) replace the tmp-file write with `O_NOFOLLOW`/`O_EXCL` (belongs in the atomic-write commit).
+Example: you've edited `output.py` to (a) add a `HASH_LENGTH` constant (belongs in the commit that introduced hashing), (b) harden the filename sanitizer (belongs in the sanitization commit), and (c) replace the tmp-file write with `O_NOFOLLOW`/`O_EXCL` (belongs in the atomic-write commit).
 
 ```bash
 # 1. Save the final state and reset the file to HEAD
@@ -252,11 +252,11 @@ $EDITOR src/output.py
 git add src/output.py
 git commit -m "fixup! <subject of hashing commit>"
 
-# 3. Apply slice B (the sanitiser commit). Re-edit to add the
+# 3. Apply slice B (the sanitizer commit). Re-edit to add the
 #    control-char / bidi / NAME_MAX cap changes.
 $EDITOR src/output.py
 git add src/output.py
-git commit -m "fixup! <subject of sanitisation commit>"
+git commit -m "fixup! <subject of sanitization commit>"
 
 # 4. Apply slice C (the atomic-write commit). Re-edit to add
 #    O_NOFOLLOW / O_EXCL / unique tmp suffix.
