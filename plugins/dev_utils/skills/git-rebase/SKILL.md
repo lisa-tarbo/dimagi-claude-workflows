@@ -1,6 +1,6 @@
 ---
 name: git-rebase
-description: Use when squashing fixup commits into earlier commits, doing interactive rebase cleanup on a feature branch, recovering from a failed autosquash rebase, inserting a reformatting commit before existing code changes, or moving/splitting file changes between commits. Covers the standard fixup workflow, dropped-commit recovery, pitfalls of custom GIT_SEQUENCE_EDITOR scripts, the replay-and-reformat pattern, the checkout-and-reconstruct pattern for rearranging commit contents, splitting one working-tree change across multiple fixup targets, and diagnosing autosquash conflicts.
+description: Use when squashing fixup commits into earlier commits, cleaning up a feature branch with interactive rebase, recovering a dropped or failed autosquash, inserting a reformatting commit before code changes, moving file changes between commits, splitting one working-tree edit across several historical commits, or diagnosing autosquash conflicts.
 ---
 
 # git-rebase
