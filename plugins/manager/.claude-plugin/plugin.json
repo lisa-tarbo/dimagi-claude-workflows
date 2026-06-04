@@ -17,9 +17,9 @@
     "management"
   ],
   "userConfig": {
-    "notes_directory": {
-      "title": "Notes Directory",
-      "description": "Directory where journal entries and goals are saved (e.g. ~/notes, ~/Documents/journal)",
+    "manager_directory": {
+      "title": "Manager Directory",
+      "description": "Directory where goals, journal entries, and other manager files are saved (e.g. ~/manager, ~/Documents/manager). Daily standup/shutdown entries go in a `daily/` subdirectory.",
       "type": "directory",
       "sensitive": false
     },

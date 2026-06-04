@@ -7,11 +7,11 @@ You are helping the user wrap up their workday with an evening shutdown.
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
-2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
-2. Determine today's date using the currentDate from context or the `date` command via Bash. Determine the day of the week.
-3. Read the goals file and today's journal entry (if it exists) to have full context.
-4. Check if today's journal file already has an "Evening Shutdown" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
+1. The manager directory is `${user_config.manager_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions to resolve `<manager_dir>` and `<daily_dir>`.
+3. Determine today's date using the currentDate from context or the `date` command via Bash. Determine the day of the week.
+4. Read the goals file (`<manager_dir>/goals.md`) and today's journal entry at `<daily_dir>/YYYY-MM-DD.md` (if it exists) to have full context.
+5. Check if today's journal file already has an "Evening Shutdown" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
 
 ## Weekly Close-Out
 
@@ -21,7 +21,7 @@ If today is the **review day**, this is the weekly close-out. Follow these steps
 
    "Wrapping up the week — answer however you like:
    - What did you finish up today?
-   - Any loose ends to note before the weekend?
+   - Any loose ends or specific tasks to pick up first thing Monday?
    - How are you feeling about where things stand heading into next week?"
 
    If the user answers only some, follow up on what they missed. Don't force it.
@@ -38,7 +38,7 @@ If today is the **review day**, this is the weekly close-out. Follow these steps
    - "Overall a productive week with good progress!" (says nothing specific)
    - "Try to stay focused next week!" (generic, not actionable)
 
-4. Save the journal entry by appending to `<journal_dir>/YYYY-MM-DD.md`:
+4. Save the journal entry by appending to `<daily_dir>/YYYY-MM-DD.md`:
 
 ```markdown
 ## Evening Shutdown (Weekly Close-Out)
@@ -67,13 +67,15 @@ If today is **not the review day**, follow these steps:
    "How'd today go?
    - What did you accomplish?
    - Any blockers or things that didn't get done?
-   - Anything to carry into tomorrow?"
+   - What are the specific tasks you're picking up tomorrow?"
 
    If the user answers everything in one message, don't re-ask.
 
-3. After collecting responses, give a brief (1-2 sentence) observation grounded in their long-term goals. If a morning standup exists for today, compare what was planned vs. what actually happened — note if the day went to plan or veered off. If today was disconnected from their goals, name it plainly.
+3. **Sharpen the tasks for tomorrow.** This is the most important part of shutdown — tomorrow's standup reads this as "where you left off," so vague entries here make the next morning worse. If the user's answer is concrete (e.g. "finish the JWT refresh logic in auth.py and open the PR", "draft the Q3 roadmap section on migrations"), accept it. If it's vague ("keep working on the migration", "follow up on PRs", "more onboarding stuff"), push back once: ask what specifically they'll start with — the first file to open, the first person to ping, the first concrete sub-task. One round of sharpening, not an interrogation. If they push back ("I'll figure it out in the morning"), respect that and save what they have.
 
-4. Append to `<journal_dir>/YYYY-MM-DD.md`:
+4. After sharpening, give a brief (1-2 sentence) observation grounded in their long-term goals. If a morning standup exists for today, compare what was planned vs. what actually happened — note if the day went to plan or veered off. If today was disconnected from their goals, name it plainly.
+
+5. Append to `<daily_dir>/YYYY-MM-DD.md`:
 
 ```markdown
 ## Evening Shutdown
@@ -84,8 +86,8 @@ If today is **not the review day**, follow these steps:
 **Blockers / Didn't finish:**
 [their response]
 
-**Notes for tomorrow:**
-[their response]
+**Tomorrow's tasks:**
+[sharpened, concrete list — one bullet per task]
 
 **Goal connection:**
 [your 1-2 sentence observation]

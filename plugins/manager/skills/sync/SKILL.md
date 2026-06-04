@@ -8,17 +8,17 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
-2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
-2. Read the goals file to have the user's goals in context.
-3. Determine the date range to summarize:
-   - Read the sync log file (e.g. `<journal_dir>/.last_sync`). It contains a single date (`YYYY-MM-DD`) — the last time a sync was run.
+1. The manager directory is `${user_config.manager_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions to resolve `<manager_dir>` and `<daily_dir>`.
+3. Read the goals file (`<manager_dir>/goals.md`) to have the user's goals in context.
+4. Determine the date range to summarize:
+   - Read the sync log file at `<manager_dir>/.last_sync`. It contains a single date (`YYYY-MM-DD`) — the last time a sync was run.
    - If the sync log doesn't exist, default to the last 14 days.
    - The range is: **day after last sync** through **today**.
 
 ## Gathering Context
 
-4. List journal files in the journal directory that fall within the date range. Read all of them.
+5. List journal files in `<daily_dir>` that fall within the date range. Read all of them.
 5. If the user passed an argument (e.g. a manager name or topic), note it — you'll tailor the summary to that context.
 
 ## Generating the Sync Summary
@@ -47,7 +47,7 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 7. After presenting the summary, ask the user:
    - "Anything you want to add, change, or emphasize before I save this?"
 
-8. Incorporate any feedback, then save the sync summary by appending to today's journal entry at `<journal_dir>/YYYY-MM-DD.md`:
+8. Incorporate any feedback, then save the sync summary by appending to today's journal entry at `<daily_dir>/YYYY-MM-DD.md`:
 
 ```markdown
 ## 1:1 Sync Prep [HH:MM]
@@ -70,7 +70,7 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 [bulleted list]
 ```
 
-9. Update the sync log file with today's date (overwrite the file with just `YYYY-MM-DD`).
+9. Update the sync log file at `<manager_dir>/.last_sync` with today's date (overwrite the file with just `YYYY-MM-DD`).
 
 ## General Rules
 
