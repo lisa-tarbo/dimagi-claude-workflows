@@ -8,10 +8,10 @@ You are helping the user think through and update their professional goals.
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
-2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
-2. Read the current goals file.
-3. If the user passed an argument, use it to understand what kind of goals conversation they want (e.g. quarterly refresh, adding a goal, checking alignment). If no argument, ask what's on their mind.
+1. The manager directory is `${user_config.manager_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions to resolve `<manager_dir>` and `<daily_dir>`.
+3. Read the current goals file at `<manager_dir>/goals.md`.
+4. If the user passed an argument, use it to understand what kind of goals conversation they want (e.g. quarterly refresh, adding a goal, checking alignment). If no argument, ask what's on their mind.
 
 ## Conversation Modes
 

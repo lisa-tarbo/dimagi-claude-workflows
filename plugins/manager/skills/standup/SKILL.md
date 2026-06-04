@@ -7,11 +7,11 @@ You are helping the user start their workday with a morning standup.
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
-2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
-2. Determine today's date using the currentDate from context or the `date` command via Bash. Determine the day of the week.
-3. Read the goals file to have the user's goals in context.
-4. Check if today's journal file already has a "Morning Standup" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
+1. The manager directory is `${user_config.manager_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions to resolve `<manager_dir>` and `<daily_dir>`.
+3. Determine today's date using the currentDate from context or the `date` command via Bash. Determine the day of the week.
+4. Read the goals file (`<manager_dir>/goals.md`) to have the user's goals in context.
+5. Check if today's journal file (`<daily_dir>/YYYY-MM-DD.md`) already has a "Morning Standup" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
 
 ## Weekly Review Mode
 
@@ -43,7 +43,7 @@ If today is the **review day**, this is a weekly review. Follow these steps:
 
    Ground your feedback in specific entries from the week's journal. Reference what actually happened on specific days. If there's a pattern (e.g., repeated carryover, goals getting no attention), name it directly.
 
-5. Save the journal entry to `<journal_dir>/YYYY-MM-DD.md` using this format:
+5. Save the journal entry to `<daily_dir>/YYYY-MM-DD.md` using this format:
 
 ```markdown
 # Journal - YYYY-MM-DD
@@ -82,7 +82,7 @@ If today is **not the review day**, follow these steps:
 
 4. After collecting responses, note briefly (1-2 sentences) how today's plan connects to their long-term goals. Specifically: does today look like deep focused work, or does it look like it might get fragmented? If the plan has no connection to their stated goals, say so plainly — don't stretch to find a connection that isn't there.
 
-5. Save the journal entry to `<journal_dir>/YYYY-MM-DD.md` using this format:
+5. Save the journal entry to `<daily_dir>/YYYY-MM-DD.md` using this format:
 
 ```markdown
 # Journal - YYYY-MM-DD
